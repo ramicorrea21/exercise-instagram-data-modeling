@@ -7,26 +7,57 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+class User(Base):
+    __tablename__="user"
+    id=Column(Integer(), primary_key=True)
+    username=Column(String(50), nullable=False, unique=True)
+    first_name=Column(String(30), nullable=False)
+    last_name=Column(String(30), nullable=False)
+    email=Column(String(50), nullable=False, unique=True)
+    post=relationship("Post", uselist=True, backref="user")
+    comment=relationship("Comment", uselist=True, backref="user")
+    like=relationship("Like", uselist=True, backref="user")
+    Follows=relationship("Follow", uselist=True, backref="user")
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+class Post(Base):
+    __tablename__="post"
+    id=Column(Integer(), primary_key=True)
+    user_id=Column(Integer(), ForeignKey("user.id"))
+    post_media=relationship("Post_media", uselist=True, backref="post")
+    comments=relationship("Comment", uselist=True, backref="post")
+    likes=relationship("Like", uselist=True, backref="post")
+    
 
-    def to_dict(self):
-        return {}
+
+class Post_media(Base):
+    __tablename__="post_media"
+    id=Column(Integer(), primary_key=True)
+    media_url=Column(String(250), nullable=False, unique=True)
+    post_id=Column(Integer(), ForeignKey("post.id"))
+
+class Comment(Base):
+    __tablename__="comment"
+    id=Column(Integer(), primary_key=True)
+    comment_text=Column(String(250), nullable=False, unique=True)
+    post_id=Column(Integer(), ForeignKey("post.id"))
+    userfrom_id=Column(Integer(), ForeignKey("user.id"))
+
+class Like(Base):
+    __tablename__="like"
+    id=Column(Integer(), primary_key=True)
+    post_id=Column(Integer(), ForeignKey("post.id"))
+    userfrom_id=Column(Integer(), ForeignKey("user.id"))
+
+class Follow(Base):
+    __tablename__="follow"
+    id=Column(Integer(), primary_key=True)
+    userfrom_id=Column(Integer(), ForeignKey("user.id"))
+    userto_id=Column(Integer(), ForeignKey("user.id"))
+
+
+
+
+
 
 ## Draw from SQLAlchemy base
 try:
